@@ -12,6 +12,7 @@ const UDropdownMenu = resolveComponent('UDropdownMenu')
 const UCheckbox = resolveComponent('UCheckbox')
 
 const toast = useToast()
+const { copy } = useClipboard()
 const table = useTemplateRef('table')
 
 const columnFilters = ref([{
@@ -34,8 +35,8 @@ function getRowItems(row: Row<User>) {
     {
       label: 'Copy customer ID',
       icon: 'i-lucide-copy',
-      onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
+      async onSelect() {
+        await copy(row.original.id.toString())
         toast.add({
           title: 'Copied to clipboard',
           description: 'Customer ID copied to clipboard'

@@ -11,6 +11,8 @@ const base64Key = ref<string>('')
 
 const copyToast = ref<{ show: () => void } | null>(null)
 
+const { add: addToHistory } = usePasswordHistory()
+
 let worker: Worker | null = null
 
 function getWorker(): Worker {
@@ -32,6 +34,7 @@ function generateKey() {
     if (ok) {
       hexKey.value = hex
       base64Key.value = base64
+      addToHistory(hex, 'key')
     }
     isGenerating.value = false
   }
@@ -45,15 +48,17 @@ function generateKey() {
 
 generateKey()
 
+const { copy } = useClipboard()
+
 async function copyHex() {
   if (!hexKey.value) return
-  await navigator.clipboard.writeText(hexKey.value)
+  await copy(hexKey.value)
   copyToast.value?.show()
 }
 
 async function copyBase64() {
   if (!base64Key.value) return
-  await navigator.clipboard.writeText(base64Key.value)
+  await copy(base64Key.value)
   copyToast.value?.show()
 }
 </script>
