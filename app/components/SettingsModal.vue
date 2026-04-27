@@ -10,6 +10,17 @@ const compactModeEnabled = useLocalStorage<boolean>('ck-compact-mode-enabled', f
 const autoCopyEnabled = useLocalStorage<boolean>('ck-auto-copy-enabled', false)
 const labsEntropyHeatmapEnabled = useLocalStorage<boolean>('ck-labs-entropy-heatmap-enabled', false)
 
+type ClearDelay = 'off' | '10' | '30' | '60'
+const clearClipboardAfter = useLocalStorage<ClearDelay>('ck-clear-clipboard-after', '30')
+const clearClipboardOptions = [
+  { value: 'off' as ClearDelay, label: 'Off' },
+  { value: '10' as ClearDelay, label: '10 seconds' },
+  { value: '30' as ClearDelay, label: '30 seconds' },
+  { value: '60' as ClearDelay, label: '60 seconds' }
+]
+
+const passwordHistoryEnabled = useLocalStorage<boolean>('ck-password-history-enabled', false)
+
 const themePreference = computed<ThemePreference>({
   get: () => {
     const p = colorMode.preference
@@ -68,15 +79,53 @@ const themeOptions = [
             </div>
             <div class="flex items-center justify-between px-4 py-3 gap-4">
               <div>
-                <p class="text-[13px] font-medium text-[var(--ck-text)]">Auto-copy Output</p>
-                <p class="text-[12px] text-[var(--ck-muted)]">Copy generated values right away.</p>
+                <p class="text-[13px] font-medium text-[var(--ck-text)]">
+                  Auto-copy Output
+                </p>
+                <p class="text-[12px] text-[var(--ck-muted)]">
+                  Copy generated values right away.
+                </p>
               </div>
               <USwitch v-model="autoCopyEnabled" color="primary" aria-label="Toggle auto copy" />
             </div>
             <div class="flex items-center justify-between px-4 py-3 gap-4">
               <div>
-                <p class="text-[13px] font-medium text-[var(--ck-text)]">Entropy Heatmap</p>
-                <p class="text-[12px] text-[var(--ck-muted)]">Visual entropy hints in generators.</p>
+                <p class="text-[13px] font-medium text-[var(--ck-text)]">
+                  Clear Clipboard After
+                </p>
+                <p class="text-[12px] text-[var(--ck-muted)]">
+                  Auto-wipe clipboard after copying.
+                </p>
+              </div>
+              <USelect
+                v-model="clearClipboardAfter"
+                :options="clearClipboardOptions"
+                option-attribute="label"
+                value-attribute="value"
+                size="sm"
+                class="w-[130px]"
+                aria-label="Clear clipboard delay"
+              />
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 gap-4">
+              <div>
+                <p class="text-[13px] font-medium text-[var(--ck-text)]">
+                  Password History
+                </p>
+                <p class="text-[12px] text-[var(--ck-muted)]">
+                  Save generated passwords locally.
+                </p>
+              </div>
+              <USwitch v-model="passwordHistoryEnabled" color="primary" aria-label="Toggle password history" />
+            </div>
+            <div class="flex items-center justify-between px-4 py-3 gap-4">
+              <div>
+                <p class="text-[13px] font-medium text-[var(--ck-text)]">
+                  Entropy Heatmap
+                </p>
+                <p class="text-[12px] text-[var(--ck-muted)]">
+                  Visual entropy hints in generators.
+                </p>
               </div>
               <USwitch v-model="labsEntropyHeatmapEnabled" color="primary" aria-label="Toggle entropy heatmap" />
             </div>

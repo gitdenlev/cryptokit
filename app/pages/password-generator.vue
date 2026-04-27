@@ -69,10 +69,14 @@ function generatePassword(): string {
   return Array.from(arr, n => charset.value[n % charset.value.length]).join('')
 }
 
+const { add: addToHistory } = usePasswordHistory()
+
 const generatedPassword = ref(generatePassword())
+addToHistory(generatedPassword.value, 'password')
 
 function regenerate() {
   generatedPassword.value = generatePassword()
+  addToHistory(generatedPassword.value, 'password')
 }
 
 watch(
@@ -80,9 +84,23 @@ watch(
   regenerate
 )
 
+const entropyHeatmapEnabled = useLocalStorage<boolean>('ck-labs-entropy-heatmap-enabled', false)
+
+const ENTROPY_LOW = '#4a5a4a'
+const ENTROPY_MID = '#22c55e'
+const ENTROPY_HIGH = '#86efac'
+
+function charEntropyColor(ch: string): string {
+  if (SYMBOLS.includes(ch)) return ENTROPY_HIGH
+  if (DIGITS.includes(ch)) return ENTROPY_MID
+  return ENTROPY_LOW
+}
+
+const { copy } = useClipboard()
+
 async function onCopyPassword() {
   if (!generatedPassword.value) return
-  await navigator.clipboard.writeText(generatedPassword.value)
+  await copy(generatedPassword.value)
   copyToast.value?.show()
 }
 </script>
@@ -165,7 +183,15 @@ async function onCopyPassword() {
         <div class="flex items-center justify-between" />
         <div class="relative bg-[var(--ck-bg)] rounded-lg px-5 py-4 overflow-x-auto min-h-[56px] flex items-center">
           <code
-            v-if="generatedPassword"
+            v-if="generatedPassword && entropyHeatmapEnabled"
+            class="font-mono text-[15px] break-all whitespace-pre-wrap leading-relaxed"
+          ><span
+            v-for="(ch, i) in generatedPassword.split('')"
+            :key="i"
+            :style="{ color: charEntropyColor(ch) }"
+          >{{ ch }}</span></code>
+          <code
+            v-else-if="generatedPassword"
             class="font-mono text-[15px] text-[var(--ck-text)] break-all whitespace-pre-wrap leading-relaxed"
           >{{ generatedPassword }}</code>
           <span v-else class="text-[var(--ck-muted)] text-[14px] italic">

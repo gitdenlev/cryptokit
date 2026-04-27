@@ -65,9 +65,11 @@ async function decrypt() {
 
 
 
+const { copy } = useClipboard();
+
 async function copyToClipboard(text: string) {
   if (!text) return;
-  await navigator.clipboard.writeText(text);
+  await copy(text);
   copyToast.value?.show();
 }
 </script>
