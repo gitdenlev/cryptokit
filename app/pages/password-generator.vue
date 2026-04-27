@@ -152,7 +152,7 @@ async function onCopyPassword() {
         <div class="flex items-center gap-3">
           <UButton color="primary" @click="regenerate">
             <UIcon name="i-lucide-refresh-cw" class="w-[18px] h-[18px]" />
-            Regenerate
+          Generate
           </UButton>
           <UButton color="neutral" @click="onCopyPassword">
             <UIcon name="i-lucide-copy" class="w-[18px] h-[18px]" />

@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
 @import "tailwindcss";
 
 @import "@nuxt/ui";
 
-
 @theme static {
-  --font-sans: 'Geist Mono', monospace;
+  --font-sans: "Geist Mono", monospace;
   --color-brand-green: #0a8f53;
   --color-brand-white: #f5f5f0;
   --color-brand-black: #19191c;
@@ -16,8 +15,20 @@
   --color-stone-200: #e8e8e3;
 }
 
-*:focus-visible {
-  outline: 1px dashed var(--ck-accent);
+textarea {
+  font-family: "Geist", sans-serif;
+}
+
+input[type="password"],
+code {
+  font-family: "Geist", monospace;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ck-muted) !important;
+  border-color: var(--ck-muted) !important;
 }
 
 li::marker {
@@ -31,7 +42,7 @@ button,
 
 :root {
   /* Fonts */
-  --font-mono: 'Geist Mono', monospace;
+  --font-mono: "Geist Mono", monospace;
 
   /* Colors */
   --ck-bg: #f5f5f0;
@@ -39,7 +50,7 @@ button,
   --ck-panel-soft: #f0f0eb;
   --ck-border: #d8d8d2;
   --ck-text: #19191c;
-  --ck-muted: #63636e;
+  --ck-muted: #52525b;
   --ck-accent: #0a8f53;
   --ck-accent-strong: #06663b;
   --ck-accent-soft: #d9f7e8;
@@ -47,22 +58,24 @@ button,
   --ck-strength-weak: #f97316;
   --ck-strength-fair: #eab308;
   --ck-strength-strong: #0a8f53;
+  --ck-focus-ring: #1e293b;
 }
 
 .dark {
-  --ck-bg: #08080a;
-  --ck-panel: #111114;
-  --ck-panel-soft: #18181c;
-  --ck-border: #222226;
-  --ck-text: #f5f4f0;
-  --ck-muted: #82838e;
-  --ck-accent: #09df73;
-  --ck-accent-strong: #08c966;
-  --ck-accent-soft: #103524;
-  --ck-accent-border: #163325;
+  --ck-bg: #161618;
+  --ck-panel: #1e1e21;
+  --ck-panel-soft: #2a2a2f;
+  --ck-border: #3a3a41;
+  --ck-text: #ececea;
+  --ck-muted: #a1a1aa;
+  --ck-accent: #10b968;
+  --ck-accent-strong: #0da85e;
+  --ck-accent-soft: #1a3d2a;
+  --ck-accent-border: #2d5a3f;
   --ck-strength-weak: #fb923c;
   --ck-strength-fair: #facc15;
-  --ck-strength-strong: #09df73;
+  --ck-strength-strong: #10b968;
+  --ck-focus-ring: #64748b;
 }
 
 html,
@@ -71,14 +84,13 @@ body,
   min-height: 100%;
   background-color: var(--ck-bg);
   color: var(--ck-text);
-  
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--ck-bg);
   color: var(--ck-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
-
-

@@ -1,7 +1,3 @@
-/**
- * AES-GCM Encrypt/Decrypt Worker
- * Uses Web Crypto API to perform AES-GCM encryption/decryption off the main thread.
- */
 self.onmessage = async (event) => {
   const { action, text, key, iv, bits } = event.data;
 

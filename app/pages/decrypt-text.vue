@@ -10,9 +10,6 @@ const catThinking = computed(() =>
 const catPlayful = computed(() =>
   getThemeImage("/cat-playful-light.svg", "/cat-playful-dark.svg")
 );
-const catSuccess = computed(() =>
-  getThemeImage("/cat-success-light.svg", "/cat-success-dark.svg")
-);
 const catError = computed(() =>
   getThemeImage("/cat-error-light.svg", "/cat-error-dark.svg")
 );
@@ -23,7 +20,7 @@ const copyToast = ref<{ show: () => void } | null>(null);
 const plaintext = ref("");
 const isProcessing = ref(false);
 const errorMessage = ref("");
-const showKey = ref(true);
+const showKey = ref(false);
 
 let worker: Worker | null = null;
 
@@ -34,62 +31,39 @@ function getWorker(): Worker {
   return worker;
 }
 
-async function generateKey() {
-  isProcessing.value = true;
-  errorMessage.value = "";
-  secretKey.value = "";
-
-  const w = getWorker();
-
-  w.onmessage = (event) => {
-    const { ok, base64, error } = event.data;
-    if (ok) {
-      secretKey.value = base64;
-    } else {
-      errorMessage.value = error || "Failed to generate key";
-    }
-    isProcessing.value = false;
-  };
-
-  w.onerror = () => {
-    errorMessage.value = "Worker error";
-    isProcessing.value = false;
-  };
-
-  w.postMessage({ action: "generateKey", bits: 256 });
-}
-
-async function encrypt() {
-  if (!plaintext.value) return;
+async function decrypt() {
+  if (!ciphertext.value) return;
   if (!secretKey.value) return;
 
   isProcessing.value = true;
   errorMessage.value = "";
-  ciphertext.value = "";
+  plaintext.value = "";
 
   const w = getWorker();
 
   w.onmessage = (event) => {
     const { ok, result, error } = event.data;
     if (ok) {
-      ciphertext.value = result;
+      plaintext.value = result;
     } else {
-      errorMessage.value = error || "Encryption failed";
+      errorMessage.value = error || "Decryption failed";
     }
     isProcessing.value = false;
   };
 
   w.onerror = () => {
-    errorMessage.value = "Encryption failed";
+    errorMessage.value = "Decryption failed";
     isProcessing.value = false;
   };
 
   w.postMessage({
-    action: "encrypt",
-    text: plaintext.value,
+    action: "decrypt",
+    text: ciphertext.value,
     key: secretKey.value,
   });
 }
+
+
 
 async function copyToClipboard(text: string) {
   if (!text) return;
@@ -105,10 +79,10 @@ async function copyToClipboard(text: string) {
     <header class="mb-8 flex flex-col items-start gap-4">
       <div>
         <h1 class="text-[28px] text-[var(--ck-text)] font-semibold mb-2 tracking-wide">
-          Encrypt Text
+          Decrypt Text
         </h1>
         <p class="text-[var(--ck-muted)] text-[16px]">
-          AES-GCM symmetric encryption with a secret key
+          AES-GCM symmetric decryption with a secret key
         </p>
       </div>
 
@@ -122,44 +96,35 @@ async function copyToClipboard(text: string) {
 
     <div
       class="bg-[var(--ck-panel)] border border-[var(--ck-border)] rounded-[12px] p-6 sm:p-8 flex flex-col gap-8 shadow-sm">
-      <!-- Plaintext -->
+      <!-- Ciphertext -->
       <div>
-        <span class="text-[var(--ck-muted)] text-[15px] mb-3 block">Plaintext</span>
-        <UTextarea autoresize variant="subtle" v-model="plaintext" :rows="5"
-          class="w-full font-mono text-[15px]" />
+        <span class="text-[var(--ck-muted)] text-[15px] mb-3 block">Ciphertext</span>
+        <UTextarea autoresize variant="subtle" v-model="ciphertext" :rows="5" class="w-full font-mono text-[15px]" />
       </div>
 
-      <!-- Key / Passphrase -->
+      <!-- Key -->
       <div>
         <div class="flex items-center justify-between mb-3">
           <span class="text-[var(--ck-muted)] text-[15px]">Key</span>
         </div>
         <div class="flex items-center gap-3">
           <UInput v-model="secretKey" :type="showKey ? 'text' : 'password'" class="flex-1 font-mono text-[15px]"
-            :color="secretKey ? 'primary' : 'neutral'" size="lg" readonly>
+            :color="secretKey ? 'primary' : 'neutral'" size="lg">
             <template #trailing>
               <UButton color="neutral" variant="link" :icon="showKey ? 'i-lucide-eye-off' : 'i-lucide-eye'"
                 @click="showKey = !showKey" :padded="false" />
             </template>
           </UInput>
-          <UButton color="neutral" variant="outline" size="lg" class="px-4" @click="copyToClipboard(secretKey)">
-            <UIcon name="i-lucide-copy" class="w-5 h-5" />
-            Copy
-          </UButton>
-          <UButton color="neutral" variant="outline" size="lg" class="px-4" @click="generateKey"
-            :loading="isProcessing && !secretKey">
-            <UIcon name="i-lucide-key" class="w-5 h-5" />
-            Generate Key
-          </UButton>
+
         </div>
       </div>
 
-      <!-- Encrypt Button -->
+      <!-- Decrypt Button -->
       <div class="flex items-center gap-3">
-        <UButton color="primary" size="lg" class="px-6" @click="encrypt"
-          :loading="isProcessing && !!plaintext && !!secretKey && !ciphertext" :disabled="!plaintext || !secretKey">
-          <UIcon name="i-lucide-lock" class="w-5 h-5" />
-          Encrypt
+        <UButton color="primary" size="lg" class="px-6" @click="decrypt" :loading="isProcessing"
+          :disabled="!ciphertext || !secretKey">
+          <UIcon name="i-lucide-lock-open" class="w-5 h-5" />
+          Decrypt
         </UButton>
       </div>
 
@@ -169,12 +134,12 @@ async function copyToClipboard(text: string) {
         <span class="leading-relaxed font-mono">{{ errorMessage }}</span>
       </div>
 
-      <!-- Ciphertext -->
-      <div v-if="ciphertext">
-        <span class="text-[var(--ck-muted)] text-[15px] mb-3 block">Ciphertext</span>
+      <!-- Plaintext result -->
+      <div v-if="plaintext">
+        <span class="text-[var(--ck-muted)] text-[15px] mb-3 block">Plaintext</span>
         <div class="flex items-center gap-3">
-          <UInput :model-value="ciphertext" class="flex-1 font-mono text-[15px]" color="neutral" size="lg" readonly />
-          <UButton color="neutral" variant="outline" size="lg" class="px-4" @click="copyToClipboard(ciphertext)">
+          <UInput :model-value="plaintext" class="flex-1 font-mono text-[15px]" color="neutral" size="lg" readonly />
+          <UButton color="neutral" variant="outline" size="lg" class="px-4" @click="copyToClipboard(plaintext)">
             <UIcon name="i-lucide-copy" class="w-5 h-5" />
             Copy
           </UButton>
@@ -187,78 +152,60 @@ async function copyToClipboard(text: string) {
         <div class="h-full w-[30vw] bg-[var(--ck-panel)] text-[var(--ck-text)] overflow-y-auto p-8 flex flex-col gap-8">
           <div>
             <p class="text-[15px] text-[var(--ck-muted)] leading-relaxed">
-              AES-GCM is an authenticated encryption algorithm that provides
-              both confidentiality and integrity. It's the gold standard for
-              symmetric encryption.
+              AES-GCM is an authenticated encryption algorithm. Decryption
+              requires the exact same key and verifies the authentication tag —
+              any tampered ciphertext will be rejected.
             </p>
           </div>
 
           <div>
             <h3 class="flex items-center gap-2.5 text-[var(--ck-text)] font-medium mb-4">
-              How it works
+              How decryption works
             </h3>
             <ul class="list-disc flex flex-col gap-4 text-[14px] text-[var(--ck-muted)] ml-2.5 pl-5">
               <li>
-                <strong>GCM</strong> mode turns a block cipher into a stream
-                cipher using counter mode, allowing encryption of data of any
-                size.
+                The <strong>IV</strong> (first 12 bytes) is extracted from the
+                ciphertext and used to initialise the GCM counter.
               </li>
               <li>
-                The <strong>IV</strong> (Initialization Vector) is randomly
-                generated for each encryption and prepended to the ciphertext.
+                The remaining bytes are decrypted using the <strong>secret key</strong>
+                and the extracted IV.
               </li>
               <li>
-                AES-256 uses a 256-bit key — the strongest variant approved for
-                classified government information.
+                GCM verifies the <strong>authentication tag</strong> automatically —
+                decryption fails if the data was modified.
               </li>
             </ul>
           </div>
 
           <div>
             <h3 class="flex items-center gap-2.5 text-[var(--ck-text)] font-medium mb-4">
-              Security features
+              Security notes
             </h3>
             <div class="flex flex-col gap-3">
               <div class="bg-[var(--ck-bg)] border border-[var(--ck-border)] p-4 rounded-lg">
                 <div class="flex items-center gap-2 text-[var(--ck-text)] text-[14px] mb-1.5">
-                  <NuxtImg :src="catSuccess" alt="Authentic" width="20" height="20" />
-                  Authentication
+                  <UIcon name="i-lucide-shield-alert" class="w-4 h-4 text-[var(--ck-muted)]" />
+                  Wrong key = failure
                 </div>
                 <p class="text-[13px] text-[var(--ck-muted)] leading-relaxed">
-                  GCM produces an authentication tag that detects tampering.
-                  Decryption will fail if the ciphertext was modified.
+                  Any mismatch between the key used for encryption and decryption
+                  will cause an authentication failure — no partial results are
+                  returned.
                 </p>
               </div>
 
               <div class="bg-[var(--ck-bg)] border border-[var(--ck-border)] p-4 rounded-lg">
                 <div class="flex items-center gap-2 text-[var(--ck-text)] text-[14px] mb-1.5">
                   <UIcon name="i-lucide-shield-check" class="w-4 h-4 text-[var(--ck-muted)]" />
-                  No padding needed
+                  Client-side only
                 </div>
                 <p class="text-[13px] text-[var(--ck-muted)] leading-relaxed">
-                  Unlike CBC mode, GCM doesn't require padding, eliminating
-                  padding oracle attacks.
+                  All decryption happens in a Web Worker — neither the key nor the
+                  plaintext ever leaves your browser.
                 </p>
               </div>
             </div>
-          </div>
-
-          <div>
-            <h3 class="flex items-center gap-2.5 text-[var(--ck-text)] font-medium mb-4">
-              Best practices
-            </h3>
-            <ul class="list-disc flex flex-col gap-4 text-[14px] text-[var(--ck-muted)] ml-2.5 pl-5">
-              <li>
-                Always use a fresh random key for each encryption session.
-              </li>
-              <li>Never reuse an IV with the same key.</li>
-              <li>
-                Store the full ciphertext (IV + ciphertext), it's
-                self-contained.
-              </li>
-              <li>Use 256-bit keys for sensitive data.</li>
-              <li>Keep your secret key safe — anyone with it can decrypt.</li>
-            </ul>
           </div>
 
           <div class="pb-6">
@@ -267,7 +214,7 @@ async function copyToClipboard(text: string) {
             </h3>
             <div class="bg-[var(--ck-panel-soft)] border border-[var(--ck-border)] p-4 rounded-lg">
               <div class="text-[13px] font-mono text-[var(--ck-muted)] leading-relaxed">
-                <div class="mb-2">Output = Base64(IV || Ciphertext)</div>
+                <div class="mb-2">Input = Base64(IV || Ciphertext)</div>
                 <div class="text-[12px]">IV: 12 bytes (96 bits)</div>
                 <div class="text-[12px]">Ciphertext: variable length</div>
               </div>

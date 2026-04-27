@@ -96,40 +96,19 @@ async function copyBase64() {
       <!-- Key size -->
       <div class="mb-10">
         <span class="text-[var(--ck-muted)] text-[15px] mb-4 block">Key size</span>
-        <div class="flex flex-wrap gap-4">
-          <UButton
-            :class="{ 'text-white': selectedBits === 128 }"
-            :variant="selectedBits === 128 ? 'soft' : 'outline'"
-            color="primary"
-            @click="selectedBits = 128"
-          >
-            128 bits
-          </UButton>
-          <UButton
-            :class="{ 'text-white': selectedBits === 192 }"
-            :variant="selectedBits === 192 ? 'soft' : 'outline'"
-            color="primary"
-            @click="selectedBits = 192"
-          >
-            192 bits
-          </UButton>
-          <UButton
-            :class="{ 'text-white': selectedBits === 256 }"
-            :variant="selectedBits === 256 ? 'soft' : 'outline'"
-            color="primary"
-            @click="selectedBits = 256"
-          >
-            256 bits
-          </UButton>
-          <UButton
-            :class="{ 'text-white': selectedBits === 512 }"
-            :variant="selectedBits === 512 ? 'soft' : 'outline'"
-            color="primary"
-            @click="selectedBits = 512"
-          >
-            512 bits
-          </UButton>
-        </div>
+        <USelect
+          v-model.number="selectedBits"
+          :options="[
+            { label: '128 bits', value: 128 },
+            { label: '192 bits', value: 192 },
+            { label: '256 bits', value: 256 },
+            { label: '512 bits', value: 512 }
+          ]"
+          option-attribute="label"
+          value-attribute="value"
+          size="lg"
+          class="w-[200px]"
+        />
       </div>
 
       <!-- Actions & Meta -->
