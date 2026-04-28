@@ -1,17 +1,8 @@
-<script setup lang="ts">
-const { isPanic } = usePanicShortcut();
-</script>
-
 <template>
-  <div
-    class="flex h-screen"
-    :class="{
-      'panic-blur': isPanic,
-    }"
-  >
+  <div class="flex h-screen">
     <Sidebar />
 
-    <main class="p-8 flex-1 overflow-y-auto bg-transparent w-full">
+    <main class="p-8 flex-1 overflow-visible bg-transparent w-full">
       <slot />
     </main>
   </div>

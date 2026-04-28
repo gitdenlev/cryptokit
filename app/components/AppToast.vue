@@ -5,7 +5,6 @@ type Props = {
   title?: string
 }
 
-
 const props = withDefaults(defineProps<Props>(), {
   title: 'Success'
 })
@@ -25,13 +24,13 @@ function show() {
       alt: props.title,
       size: '2xs',
       ui: {
-        root: '!rounded-none !bg-[var(--ck-panel)] !text-[var(--ck-text)]'
+        root: '!rounded-none !bg-[var(--ck-panel)] !text-(--ck-text)'
       }
     },
     ui: {
       root: 'inline-flex items-center gap-2 px-3 py-2',
       wrapper: 'w-auto flex-none',
-      description: 'm-0 text-lg font-medium text-[var(--ck-text)]'
+      description: 'm-0 text-lg font-medium text-(--ck-text)'
     },
     color: 'success'
   })
@@ -42,4 +41,6 @@ defineExpose<{ show: () => void }>({
 })
 </script>
 
-<template></template>
+<template>
+  <slot />
+</template>

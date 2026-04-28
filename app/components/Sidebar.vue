@@ -1,15 +1,21 @@
 <script setup lang="ts">
 const route = useRoute()
 const { getThemeImage } = useThemeImage()
-const catLogo = computed(() => getThemeImage('/cat-success-light.svg', '/cat-success-dark.svg'))
+const catLogo = computed(() =>
+  getThemeImage('/cat-success-light.svg', '/cat-success-dark.svg')
+)
 
 const collapsed = useState<boolean>('sidebar-collapsed', () => false)
 
-type NavItem = { label: string; icon: string; to: string }
+type NavItem = { label: string, icon: string, to: string }
 
 const navGroups: NavItem[][] = [
   [
-    { label: 'Password Generator', icon: 'i-lucide-key-round', to: '/password-generator' },
+    {
+      label: 'Password Generator',
+      icon: 'i-lucide-key-round',
+      to: '/password-generator'
+    },
     { label: 'Key Generator', icon: 'i-lucide-key', to: '/key-generator' }
   ],
   [
@@ -18,9 +24,9 @@ const navGroups: NavItem[][] = [
     { label: 'Classical Ciphers', icon: 'i-lucide-scroll-text', to: '/' }
   ],
   [
-    { label: 'Hash Text', icon: 'i-lucide-hash', to: '/' },
-    { label: 'Compare Hashes', icon: 'i-lucide-search-check', to: '/' },
-    { label: 'File Integrity', icon: 'i-lucide-file-check-2', to: '/' }
+    { label: 'Hash Text', icon: 'i-lucide-hash', to: '/hash-text' },
+    { label: 'Compare Hashes', icon: 'i-lucide-search-check', to: '/compare-hashes' },
+    { label: 'File Integrity', icon: 'i-lucide-file-check-2', to: '/file-integrity' }
   ],
   [
     { label: 'Hide in Image', icon: 'i-lucide-image-up', to: '/' },
@@ -37,10 +43,12 @@ const navGroups: NavItem[][] = [
 <template>
   <aside
     :class="collapsed ? 'sidebar--collapsed' : 'sidebar--expanded'"
-    class="sidebar border-r border-[var(--ck-border)] bg-[var(--ck-bg)] flex flex-col shrink-0"
+    class="sidebar border-r border-(--ck-border) bg-(--ck-bg) flex flex-col shrink-0"
   >
     <!-- Header -->
-    <div class="h-[76px] flex items-center px-[18px] font-medium tracking-[-0.01em] relative">
+    <div
+      class="h-[76px] flex items-center px-[18px] font-medium tracking-[-0.01em] relative"
+    >
       <NuxtImg
         :src="catLogo"
         alt="Cryptokit logo"
@@ -50,21 +58,20 @@ const navGroups: NavItem[][] = [
         :class="{ 'cursor-pointer': collapsed }"
         @click="collapsed = false"
       />
-      <span class="sidebar-label ml-[12px] text-[1.5rem] overflow-hidden whitespace-nowrap">
+      <span
+        class="sidebar-label ml-[12px] text-[1.5rem] overflow-hidden whitespace-nowrap"
+      >
         Сryptokit
       </span>
       <UButton
+        v-if="!collapsed"
         variant="ghost"
         color="neutral"
-        v-if="!collapsed"
         title="Collapse sidebar"
-        @click="collapsed = true"
         class="absolute right-[12px] top-[50%] translate-y-[-50%]"
+        @click="collapsed = true"
       >
-        <UIcon
-          name="i-lucide-panel-left-close"
-          size="22"
-        />
+        <UIcon name="i-lucide-panel-left-close" size="22" />
       </UButton>
     </div>
 
@@ -74,7 +81,11 @@ const navGroups: NavItem[][] = [
       :class="collapsed ? 'px-[10px]' : 'px-[10px]'"
       aria-label="Dashboard navigation"
     >
-      <section v-for="(group, gi) in navGroups" :key="gi" class="flex flex-col gap-[2px]">
+      <section
+        v-for="(group, gi) in navGroups"
+        :key="gi"
+        class="flex flex-col gap-[2px]"
+      >
         <UTooltip
           v-for="item in group"
           :key="item.label"
@@ -88,14 +99,16 @@ const navGroups: NavItem[][] = [
             :to="item.to"
             :class="[
               route.path === item.to
-                ? 'text-[var(--ck-text)] bg-[var(--ck-panel)]'
-                : 'text-[var(--ck-muted)] hover:text-[var(--ck-text)] hover:bg-[var(--ck-panel)]',
+                ? 'text-(--ck-text) bg-(--ck-panel)'
+                : 'text-(--ck-text) hover:text-(--ck-text) hover:bg-(--ck-panel)',
               'nav-item flex items-center py-[9px] rounded-[10px] no-underline transition-all duration-300 ease-in-out w-full',
               collapsed ? 'justify-center px-0 gap-0' : 'px-[8px] gap-[10px]'
             ]"
           >
             <UIcon :name="item.icon" />
-            <span class="sidebar-label overflow-hidden whitespace-nowrap">{{ item.label }}</span>
+            <span class="sidebar-label overflow-hidden whitespace-nowrap">{{
+              item.label
+            }}</span>
           </NuxtLink>
         </UTooltip>
       </section>
@@ -111,11 +124,17 @@ const navGroups: NavItem[][] = [
   overflow: hidden;
 }
 
-.sidebar--expanded { width: 280px; }
-.sidebar--collapsed { width: 64px; }
+.sidebar--expanded {
+  width: 280px;
+}
+.sidebar--collapsed {
+  width: 64px;
+}
 
 @media (min-width: 1024px) {
-  .sidebar--expanded { width: 320px; }
+  .sidebar--expanded {
+    width: 320px;
+  }
 }
 
 /* Labels — fade + width collapse */
@@ -151,7 +170,10 @@ const navGroups: NavItem[][] = [
   cursor: pointer;
   flex-shrink: 0;
   opacity: 0;
-  transition: background 150ms ease, color 150ms ease, opacity 200ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease,
+    opacity 200ms ease;
 }
 
 .sidebar:hover .collapse-btn {
